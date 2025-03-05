@@ -16,7 +16,7 @@ To run Prompt2App locally, follow these steps:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/prompt2app.git  
+git clone https://github.com/dennis-mmachoene/prompt2app.git  
 cd prompt2app  
 
 # Install dependencies
