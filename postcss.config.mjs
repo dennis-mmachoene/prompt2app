@@ -1,5 +1,7 @@
-const config = {
-  plugins: ["@tailwindcss/postcss"],
+export default {
+  plugins: [
+    "tailwindcss",
+    "autoprefixer",
+    require("tailwind-scrollbar-hide")
+  ],
 };
-
-export default config;
