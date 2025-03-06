@@ -92,24 +92,9 @@ const ChatView = () => {
                   height={35}
                 />
               )}
-              <ReactMarkdown
-                components={{
-                  p: ({ node, ...props }) => (
-                    <p className="text-base leading-relaxed my-2" {...props} />
-                  ),
-                  strong: ({ node, ...props }) => (
-                    <strong className="font-bold text-white" {...props} />
-                  ),
-                  ul: ({ node, ...props }) => (
-                    <ul className="list-disc list-inside my-2" {...props} />
-                  ),
-                  li: ({ node, ...props }) => (
-                    <li className="ml-4 text-base leading-snug" {...props} />
-                  ),
-                }}
-              >
-                {msg.content}
-              </ReactMarkdown>
+              <div className="flex flex-col">
+                <ReactMarkdown>{msg.content}</ReactMarkdown>
+              </div>
             </div>
           );
         })}
