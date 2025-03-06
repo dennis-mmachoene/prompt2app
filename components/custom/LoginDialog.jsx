@@ -12,9 +12,13 @@ import { Button } from '../ui/button'
 import { useGoogleLogin } from '@react-oauth/google'
 import { UserDetailsContext } from '@/context/UserDetailsContext'
 import axios from 'axios'
+import { useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+import uuid4 from 'uuid4'
 
 const LoginDialog = ({ openDialog, setOpenDialog }) => {
     const { setUserDetails } = useContext(UserDetailsContext);
+    const CreateUser = useMutation(api.users.CreateUser) 
 
     const googleLogin = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
@@ -27,6 +31,24 @@ const LoginDialog = ({ openDialog, setOpenDialog }) => {
                 );
 
                 console.log("User Info:", data);
+
+                const user = {
+                    name: data?.name,
+                    email: data?.email,
+                    picture: data?.picture,
+                    uid: uuid4(),
+                }
+                
+                await CreateUser({
+                    name: user?.name,
+                    email: user?.email,
+                    picture: user?.picture,
+                    uid: user?.uid,
+                  });
+
+                if(typeof window !== undefined){
+                    localStorage.setItem('user', JSON.stringify(user))
+                }
                 setUserDetails(data);
                 setOpenDialog(false); // Close the dialog after login success
             } catch (error) {
