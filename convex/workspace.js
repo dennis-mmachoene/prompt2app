@@ -4,7 +4,7 @@ import { mutation, query } from "./_generated/server";
 export const CreateWorkSpace = mutation({
     args: {
         messages: v.any(),
-        user: v.id('users')
+        user: v.id('users'),
     },
     handler: async (ctx, args) => {
 
@@ -32,9 +32,28 @@ export const UpdateMessages = mutation({
         messages: v.any()
     },
     handler: async(ctx, args) => {
+        console.log(ctx.db)
         const result = await ctx.db.patch(args.workspaceId, {
             messages: args.messages
         })
         return result
     }
 })
+
+export const UpdateFiles = mutation({
+    args: {
+        workspaceId: v.id('workspace'),
+        files: v.any()
+    },
+    handler: async (ctx, args) => {
+        if (!ctx) {
+            throw new Error("Database context (ctx.db) is undefined");
+        }
+
+        const result = await ctx.db.patch(args.workspaceId,{
+            fileData: args.files
+        })
+
+        return result;
+    }
+});
