@@ -6,7 +6,9 @@ import { MessagesContext } from "@/context/MessagesContext";
 import { UserDetailsContext } from "@/context/UserDetailsContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { useConvex } from "convex/react";
-import { api } from '@/convex/_generated/api'
+import { api } from "@/convex/_generated/api";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import {AppSidebar} from "@/components/custom/AppSidebar"
 
 const Provider = ({ children }) => {
   const [messages, setMessages] = useState();
@@ -19,8 +21,8 @@ const Provider = ({ children }) => {
       const result = await convex.query(api.users.GetUser, {
         email: user?.email,
       });
-      console.log(result)
-      setUserDetails(result)
+      console.log(result);
+      setUserDetails(result);
     }
   };
   useEffect(() => {
@@ -40,7 +42,10 @@ const Provider = ({ children }) => {
               disableTransitionOnChange
             >
               <Header />
-              {children}
+              <SidebarProvider defaultOpen={true}>
+                <AppSidebar />
+                {children}
+              </SidebarProvider>
             </NextThemesProvider>
           </MessagesContext.Provider>
         </UserDetailsContext.Provider>

@@ -12,8 +12,10 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import React, { useContext, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import { useSidebar } from "../ui/sidebar";
 
 const ChatView = () => {
+  const {toggleSidebar} = useSidebar();
   const { id } = useParams();
   const [userInput, setUserInput] = useState();
   const convex = useConvex();
@@ -73,7 +75,7 @@ const ChatView = () => {
   };
   return (
     <div className="relative h-[85vh] flex flex-col ">
-      <div className="flex-1 overflow-y-scroll scrollbar-hide ">
+      <div className="flex-1 overflow-y-scroll scrollbar-hide px-5 ">
         {messages?.map((msg, index) => {
           return (
             <div
@@ -110,28 +112,34 @@ const ChatView = () => {
           </div>
         )}
       </div>
-      <div
-        className="p-5 border rounded-xl max-w-xl w-full mt-3"
-        style={{
-          backgroundColor: Colors.BACKGROUND,
-        }}
-      >
-        <div className="flex gap-2">
-          <textarea
-            value={userInput}
-            onChange={(e) => setUserInput(e.target.value)}
-            className="outline-none bg-transparent w-full h-32 max-h-56 resize-none"
-            placeholder={Lookup.INPUT_PLACEHOLDER}
-          />
-          {userInput && (
-            <ArrowRight
-              onClick={() => onGenerate(userInput)}
-              className="bg-blue-500 p-2 h-10 w-8 rounded-md cursor-pointer"
+
+      <div className="flex gap-2 items-end">
+        {userDetails && (
+          <Image onClick={toggleSidebar} className="rounded-full cursor-pointer" src={userDetails?.picture} alt="user" width={30} height={30} />
+        )}
+        <div
+          className="p-5 border rounded-xl max-w-xl w-full mt-3"
+          style={{
+            backgroundColor: Colors.BACKGROUND,
+          }}
+        >
+          <div className="flex gap-2">
+            <textarea
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
+              className="outline-none bg-transparent w-full h-32 max-h-56 resize-none"
+              placeholder={Lookup.INPUT_PLACEHOLDER}
             />
-          )}
-        </div>
-        <div>
-          <Link className="h-5 w-5" />
+            {userInput && (
+              <ArrowRight
+                onClick={() => onGenerate(userInput)}
+                className="bg-blue-500 p-2 h-10 w-8 rounded-md cursor-pointer"
+              />
+            )}
+          </div>
+          <div>
+            <Link className="h-5 w-5" />
+          </div>
         </div>
       </div>
     </div>
