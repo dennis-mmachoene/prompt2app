@@ -67,9 +67,9 @@ const CodeView = () => {
       workspaceId: id,
       files: aiResponse?.files,
     });
-    const token = Number(
-      userDetails?.token - countToken(JSON.stringify(aiResponse))
-    );
+    const token =
+      Number(userDetails?.token) -
+      Number(countToken(JSON.stringify(aiResponse)));
 
     await UpdateTokens({
       userId: userDetails?._id,
