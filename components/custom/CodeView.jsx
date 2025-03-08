@@ -16,6 +16,8 @@ import { useConvex, useMutation } from "convex/react";
 import { Loader2Icon } from "lucide-react";
 import { useParams } from "next/navigation";
 import React, { useContext, useEffect, useState } from "react";
+import { countToken } from "./ChatView";
+import { UserDetailsContext } from "@/context/UserDetailsContext";
 
 const CodeView = () => {
   const [activeTab, setActiveTab] = useState("code");
@@ -24,16 +26,18 @@ const CodeView = () => {
   const updateFiles = useMutation(api.workspace.UpdateFiles);
   const { id } = useParams();
   const convex = useConvex();
-const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const UpdateTokens = useMutation(api.users.UpdateToken);
+  const { userDetails, setUserDetails } = useContext(UserDetailsContext);
 
   const GetFiles = async () => {
-    setLoading(true)
+    setLoading(true);
     const result = await convex.query(api.workspace.GetWorkspace, {
       workspaceId: id,
     });
     const mergedFiles = { ...Lookup.DEFAULT_FILE, ...result?.fileData };
     setFiles(mergedFiles);
-    setLoading(false)
+    setLoading(false);
   };
   useEffect(() => {
     id && GetFiles();
@@ -49,21 +53,30 @@ const [loading, setLoading] = useState(false)
   }, [messages]);
 
   const GenerateAiCode = async () => {
-    setLoading(true)
+    setLoading(true);
     const PROMPT = JSON.stringify(messages) + " " + Prompt.CODE_GEN_PROMPT;
     const result = await axios.post("/api/gen-ai-code", {
       prompt: PROMPT,
     });
     console.log(result.data);
     const aiResponse = result.data;
-    console.log({files: result.data.files});
+    console.log({ files: result.data.files });
     const mergedFiles = { ...Lookup.DEFAULT_FILE, ...aiResponse?.files };
     setFiles(mergedFiles);
     await updateFiles({
       workspaceId: id,
       files: aiResponse?.files,
     });
-    setLoading(false)
+    const token = Number(
+      userDetails?.token - countToken(JSON.stringify(aiResponse))
+    );
+
+    await UpdateTokens({
+      userId: userDetails?._id,
+      token: token,
+    });
+    setActiveTab("code");
+    setLoading(false);
   };
 
   return (
@@ -87,7 +100,7 @@ const [loading, setLoading] = useState(false)
       <SandpackProvider
         template="react"
         theme={"dark"}
-        files={ files }
+        files={files}
         options={{
           externalResources: ["https://unpkg.com/@tailwindcss/browser@4"],
         }}
@@ -113,10 +126,12 @@ const [loading, setLoading] = useState(false)
           )}
         </SandpackLayout>
       </SandpackProvider>
-      { loading && <div className="p-10 bg-gray-900/80 absolute top-0 rounded-lg h-full w-full items-center justify-center">
-        <Loader2Icon className="animate-spin h-10 w-10 text-white "/>
-        <h2 className="text-white">Generating your files..</h2>
-      </div>}
+      {loading && (
+        <div className="p-10 bg-gray-900/80 absolute top-0 rounded-lg h-full w-full items-center justify-center">
+          <Loader2Icon className="animate-spin h-10 w-10 text-white " />
+          <h2 className="text-white">Generating your files..</h2>
+        </div>
+      )}
     </div>
   );
 };

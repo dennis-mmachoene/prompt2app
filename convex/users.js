@@ -13,14 +13,27 @@ export const CreateUser = mutation({
 
         console.log(user)
 
-        if(user.length === 0){
+        if(user?.length === 0){
             const result = await ctx.db.insert('users',{
                 name: args.name,
                 email: args.email,
                 picture: args.picture,
-                uid: args.uid
+                uid: args.uid,
+                token: 50000
             })
         }
+    }
+})
+export const UpdateToken = mutation({
+    args: {
+        token: v.number(),
+        userId: id('users')
+    },
+    handler: async (ctx, args) => {
+        const result = await ctx.db.patch(args.userId, {
+            token:args.token
+        })
+        return result
     }
 })
 

@@ -14,8 +14,15 @@ import React, { useContext, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { useSidebar } from "../ui/sidebar";
 
+export const countToken = (inputText) => {
+  return inputText
+    .trim()
+    .split(/\s+/)
+    .filter((word) => word).length;
+};
+
 const ChatView = () => {
-  const {toggleSidebar} = useSidebar();
+  const { toggleSidebar } = useSidebar();
   const { id } = useParams();
   const [userInput, setUserInput] = useState();
   const convex = useConvex();
@@ -23,6 +30,7 @@ const ChatView = () => {
   const { userDetails, setUserDetails } = useContext(UserDetailsContext);
   const [loading, setLoading] = useState(false);
   const UpdateMessages = useMutation(api.workspace.UpdateMessages);
+  const UpdateTokens = useMutation(api.users.UpdateToken);
 
   const GetWorkspaceData = async () => {
     const result = await convex.query(api.workspace.GetWorkspace, {
@@ -47,7 +55,19 @@ const ChatView = () => {
       role: "ai",
       content: result.data.result,
     };
+
     setMessages((prev) => [...prev, aiResponse]);
+
+    const token = Number(
+      userDetails?.token - countToken(JSON.stringify(aiResponse))
+    );
+
+    await UpdateTokens({
+      userId: userDetails?._id,
+      token: token,
+    });
+    console.log("LEN", countToken(JSON.stringify(aiResponse)));
+
     await UpdateMessages({
       messages: [...messages, aiResponse],
       workspaceId: id,
@@ -115,7 +135,14 @@ const ChatView = () => {
 
       <div className="flex gap-2 items-end">
         {userDetails && (
-          <Image onClick={toggleSidebar} className="rounded-full cursor-pointer" src={userDetails?.picture} alt="user" width={30} height={30} />
+          <Image
+            onClick={toggleSidebar}
+            className="rounded-full cursor-pointer"
+            src={userDetails?.picture}
+            alt="user"
+            width={30}
+            height={30}
+          />
         )}
         <div
           className="p-5 border rounded-xl max-w-xl w-full mt-3"
